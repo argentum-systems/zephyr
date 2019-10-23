@@ -326,6 +326,9 @@ static int stm32_clock_control_init(const struct device *dev)
 	 */
 	stm32_clock_switch_to_hsi(LL_RCC_SYSCLK_DIV_1);
 	LL_RCC_PLL_Disable();
+#if defined(RCC_PLL2_SUPPORT)
+	LL_RCC_PLL2_Disable();
+#endif
 
 #ifdef CONFIG_SOC_SERIES_STM32F7X
 	 /* Assuming we stay on Power Scale default value: Power Scale 1 */
@@ -391,6 +394,33 @@ static int stm32_clock_control_init(const struct device *dev)
 #endif
 		hse_bypass,
 		&s_PLLInitStruct,
+		&s_ClkInitStruct);
+
+	/* Disable other clocks */
+	LL_RCC_HSI_Disable();
+	LL_RCC_MSI_Disable();
+
+#elif CONFIG_CLOCK_STM32_PLL_SRC_PLL2
+	int hse_bypass;
+	LL_UTILS_PLLInitTypeDef s_PLL2InitStruct;
+
+	if (IS_ENABLED(CONFIG_CLOCK_STM32_HSE_BYPASS)) {
+		hse_bypass = LL_UTILS_HSEBYPASS_ON;
+	} else {
+		hse_bypass = LL_UTILS_HSEBYPASS_OFF;
+	}
+
+	/* get PLL2 configuration */
+	config_pll2_init(&s_PLL2InitStruct);
+
+	/* Switch to PLL, via PLL2 with HSE as clock source */
+	LL_PLL_ConfigSystemClock_PLL2(
+#ifndef CONFIG_SOC_SERIES_STM32WBX
+		CONFIG_CLOCK_STM32_HSE_CLOCK,
+#endif
+		hse_bypass,
+		&s_PLLInitStruct,
+		&s_PLL2InitStruct,
 		&s_ClkInitStruct);
 
 	/* Disable other clocks */

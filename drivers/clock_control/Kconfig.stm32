@@ -58,13 +58,13 @@ endchoice #CLOCK_STM32_SYSCLK_SRC
 
 config CLOCK_STM32_HSE_BYPASS
 	bool "HSE bypass"
-	depends on CLOCK_STM32_SYSCLK_SRC_HSE || CLOCK_STM32_PLL_SRC_HSE
+	depends on CLOCK_STM32_SYSCLK_SRC_HSE || CLOCK_STM32_PLL_SRC_HSE || CLOCK_STM32_PLL_SRC_PLL2
 	help
 	  Enable this option to bypass external high-speed clock (HSE).
 
 config CLOCK_STM32_HSE_CLOCK
 	int "HSE clock value"
-	depends on CLOCK_STM32_SYSCLK_SRC_HSE || CLOCK_STM32_PLL_SRC_HSE
+	depends on CLOCK_STM32_SYSCLK_SRC_HSE || CLOCK_STM32_PLL_SRC_HSE || CLOCK_STM32_PLL_SRC_PLL2
 	default 8000000
 	help
 	  Value of external high-speed clock (HSE).
