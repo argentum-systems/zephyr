@@ -31,6 +31,9 @@
 #endif
 
 void config_pll_init(LL_UTILS_PLLInitTypeDef *pllinit);
+#if defined(RCC_PLL2_SUPPORT) && defined(CONFIG_CLOCK_STM32_PLL_SRC_PLL2)
+void config_pll2_init(LL_UTILS_PLLInitTypeDef *pll2init);
+#endif /* RCC_PLL2_SUPPORT && CONFIG_CLOCK_STM32_PLL_SRC_PLL2 */
 void config_enable_default_clocks(void);
 
 /* Section for functions not available in every Cube packages */

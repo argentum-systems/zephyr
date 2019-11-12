@@ -54,6 +54,42 @@ void config_pll_init(LL_UTILS_PLLInitTypeDef *pllinit)
 	pllinit->Prediv = CONFIG_CLOCK_STM32_PLL_PREDIV1 - 1;
 }
 
+#ifdef CONFIG_CLOCK_STM32_PLL_SRC_PLL2
+/**
+ * @brief fill in pll configuration structure for PLL2
+ */
+void config_pll2_init(LL_UTILS_PLLInitTypeDef *pll2init)
+{
+	/*
+	 * PLL2MUL on SOC_STM32F10X_CONNECTIVITY_LINE_DEVICE
+	 * 8  -> LL_RCC_PLL2_MUL_8   -> 0x00000600
+	 * 9  -> LL_RCC_PLL2_MUL_9   -> 0x00000700
+	 * 14 -> LL_RCC_PLL2_MUL_14  -> 0x00000C00
+	 * ...
+	 * 16 -> LL_RCC_PLL2_MUL_16  -> 0x00000E00
+	 * 20 -> LL_RCC_PLL2_MUL_20  -> 0x00000F00
+	 */
+	if (CONFIG_CLOCK_STM32_PLL2_MULTIPLIER < 16) {
+		pll2init->PLLMul = ((CONFIG_CLOCK_STM32_PLL2_MULTIPLIER - 2)
+			<< RCC_CFGR2_PLL2MUL_Pos);
+	} else {
+		pll2init->PLLMul = ((CONFIG_CLOCK_STM32_PLL2_MULTIPLIER - 5)
+			<< RCC_CFGR2_PLL2MUL_Pos);
+	}
+
+	/*
+	 * SOC_STM32F10X_CONNECTIVITY_LINE_DEVICE
+	 * 1  -> LL_RCC_HSE_PREDIV2_DIV_1  -> 0x00000000
+	 * 2  -> LL_RCC_HSE_PREDIV2_DIV_2  -> 0x00000010
+	 * 3  -> LL_RCC_HSE_PREDIV2_DIV_3  -> 0x00000020
+	 * ...
+	 * 16 -> LL_RCC_HSE_PREDIV2_DIV_16 -> 0x000000F0
+	 */
+	pll2init->Prediv = ((CONFIG_CLOCK_STM32_PLL2_PREDIV2 - 1)
+		<< RCC_CFGR2_PREDIV2_Pos);
+}
+#endif /* CONFIG_CLOCK_STM32_PLL_SRC_PLL2 */
+
 #endif /* CONFIG_CLOCK_STM32_SYSCLK_SRC_PLL */
 
 /**
