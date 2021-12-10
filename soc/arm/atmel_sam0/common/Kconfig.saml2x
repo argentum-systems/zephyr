@@ -1,0 +1,65 @@
+# Copyright (c) 2021 Argentum Systems Ltd.
+# SPDX-License-Identifier: Apache-2.0
+
+if SOC_SERIES_SAML21
+
+config SOC_ATMEL_SAML_OSC32K
+	bool "Enable the internal 32.768 kHz RC oscillator"
+	help
+		Say y to enable the internal 32.768 kHz RC oscillator at
+		startup. This can then be selected as the main clock reference
+		for the SOC.
+
+config SOC_ATMEL_SAML_XOSC32K
+	bool "Enable the external 32.768 kHz crystal oscillator"
+	help
+		Say y to enable the external 32.768 kHz crystal oscillator at
+		startup. This can then be selected as the main clock reference
+		for the SOC.
+
+config SOC_ATMEL_SAML_XOSC32K_CRYSTAL
+	bool "Enable crystal oscillator"
+	depends on SOC_ATMEL_SAML_XOSC32K
+	default y
+	help
+		Say y to enable the crystal oscillator, or say n to expect a
+		clock signal on XIN32.
+
+config SOC_ATMEL_SAML_OSC16M
+	bool "Enable the internal 16 MHz RC oscillator"
+	help
+		Say y to enable the internal 16 MHz RC oscillator at
+		startup. This can then be selected as the main clock reference
+		for the SOC.
+
+# NOTE: XOSC is not currently supported
+
+
+choice
+	prompt "Main clock reference"
+	default SOC_ATMEL_SAML_OPENLOOP_AS_MAIN
+	help
+		Selects the clock that will be used for the DFLL48M's reference.
+		Main clocks, such as the CPU and AHB clocks will be derived from
+		DFLL48M configured for 48 MHz.
+
+config SOC_ATMEL_SAML_OPENLOOP_AS_MAIN
+	bool "OPENLOOP"
+	help
+		Note, this mode can only be used with an LDO regulator.
+
+config SOC_ATMEL_SAML_OSC32K_AS_MAIN
+	bool "OSC32K"
+	depends on SOC_ATMEL_SAML_OSC32K
+
+config SOC_ATMEL_SAML_XOSC32K_AS_MAIN
+	bool "XOSC32K"
+	depends on SOC_ATMEL_SAML_XOSC32K
+
+config SOC_ATMEL_SAML_OSC16M_AS_MAIN
+	bool "OSC16M"
+	depends on SOC_ATMEL_SAML_OSC16M
+
+endchoice
+
+endif # SOC_SERIES_SAML21
