@@ -1142,6 +1142,7 @@ int stm32_i2c_transaction(const struct device *dev,
 	 * which will make the combination of all chunks to look like one big
 	 * transaction on the wire.
 	 */
+	struct i2c_stm32_data *data = dev->data;
 	const uint32_t i2c_stm32_maxchunk = 255U;
 	const uint8_t saved_flags = msg.flags;
 	uint8_t combine_flags =
@@ -1151,6 +1152,8 @@ int stm32_i2c_transaction(const struct device *dev,
 	int ret = 0;
 
 	do { /* do ... while to allow zero-length transactions */
+		k_sem_reset(&data->device_sync_sem);
+
 		if (msg.len > i2c_stm32_maxchunk) {
 			msg.len = i2c_stm32_maxchunk;
 			msg.flags &= ~I2C_MSG_STOP;
