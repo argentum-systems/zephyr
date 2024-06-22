@@ -4,6 +4,7 @@
 	pinctrl-0 = <&i2c1_scl_pb6 &i2c1_sda_pb7>;
 };
 
+/*
 &spi1 {
 	pinctrl-0 = <&spi1_sck_pa5 &spi1_miso_pa6 &spi1_mosi_pa7>;
 	cs-gpios = <&gpioa 4 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
@@ -20,6 +21,23 @@
 		};
 	};
 };
+*/
+
+/delete-node/ &spi3;
+&sdmmc1 {
+	bus-width = <1>;
+	clk-div = <0>;
+	pinctrl-0 = <
+		&sdmmc1_ck_pc12
+		&sdmmc1_cmd_pd2
+		&sdmmc1_d0_pc8
+		&sdmmc1_d1_pc9
+		&sdmmc1_d2_pc10
+		&sdmmc1_d3_pc11
+	>;
+	pinctrl-names = "default";
+	status = "okay";
+};
 
 &can1 {
 	pinctrl-0 = <&can1_rx_pb8 &can1_tx_pb9>;
@@ -28,6 +46,12 @@
 	status = "okay";
 };
 
+&clk_msi {
+	msi-range = <11>; /* ~48 MHz */
+	status = "okay";
+};
+
+/*
 &clk_hse {
 	hse-bypass;
 	clock-frequency = <DT_FREQ_M(8)>;
@@ -49,3 +73,4 @@
 	apb1-prescaler = <1>;
 	apb2-prescaler = <1>;
 };
+*/
