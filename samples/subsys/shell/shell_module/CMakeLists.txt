@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-list(APPEND ZEPHYR_EXTRA_MODULES /home/user/zephyrproject/application/external/)
+list(APPEND ZEPHYR_EXTRA_MODULES /p/application/external/)
 
 cmake_minimum_required(VERSION 3.20.0)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
