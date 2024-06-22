@@ -173,6 +173,7 @@ static void setup_disk(void)
 	       sbuf.f_bsize, sbuf.f_frsize,
 	       sbuf.f_blocks, sbuf.f_bfree);
 
+#if 0
 	rc = fs_opendir(&dir, mp->mnt_point);
 	printk("%s opendir: %d\n", mp->mnt_point, rc);
 
@@ -199,6 +200,7 @@ static void setup_disk(void)
 	}
 
 	(void)fs_closedir(&dir);
+#endif
 
 	return;
 }
