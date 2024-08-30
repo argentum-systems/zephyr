@@ -29,8 +29,14 @@
 };
 */
 
+&dma2 {
+	status = "okay";
+};
+
 /delete-node/ &spi3;
 &sdmmc1 {
+	dmas = <&dma2 4 6 0x30000 0x00>, <&dma2 4 3 0x30000 0x00>;
+	//idma;
 	bus-width = <1>;
 	clk-div = <0>;
 	pinctrl-0 = <

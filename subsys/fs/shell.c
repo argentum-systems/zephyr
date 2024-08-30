@@ -672,7 +672,7 @@ static int cmd_erase_write_test(const struct shell *sh, size_t argc, char **argv
 	/* Generate random data, the contents is not important */
 	i = 0;
 	while (i < sizeof(random_data)) {
-		random_data[i] = (uint8_t)(i % 255);
+		random_data[i] = (uint8_t)(i % 256);
 		++i;
 	}
 

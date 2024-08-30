@@ -1,3 +1,4 @@
+#include <pk.h>
 /*
  * Copyright (c) 2020 Amarula Solutions.
  *
@@ -121,6 +122,7 @@ static void stm32_sdmmc_isr(const struct device *dev)
                                                                                                    \
 		k_sem_give(&priv->sync);                                                           \
 	}
+		//PKV("%d", hsd->ErrorCode);
 
 #ifdef CONFIG_SDMMC_STM32_EMMC
 DEFINE_HAL_CALLBACK(HAL_MMC_TxCpltCallback);
@@ -199,6 +201,7 @@ static int stm32_sdmmc_configure_dma(DMA_HandleTypeDef *handle, struct sdmmc_dma
 {
 	int ret;
 
+	PKV("0x%08x", dma->dev);
 	if (!device_is_ready(dma->dev)) {
 		LOG_ERR("Failed to get dma dev");
 		return -ENODEV;
@@ -212,18 +215,18 @@ static int stm32_sdmmc_configure_dma(DMA_HandleTypeDef *handle, struct sdmmc_dma
 		return ret;
 	}
 
-	handle->Instance                 = __LL_DMA_GET_STREAM_INSTANCE(dma->reg, dma->channel_nb);
-	handle->Init.Channel             = dma->cfg.dma_slot * DMA_CHANNEL_1;
+	handle->Instance                 = DMA2_Channel4;
+	//handle->Init.Channel             = dma->cfg.dma_slot * DMA_CHANNEL_1;
 	handle->Init.PeriphInc           = DMA_PINC_DISABLE;
 	handle->Init.MemInc              = DMA_MINC_ENABLE;
 	handle->Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
 	handle->Init.MemDataAlignment    = DMA_MDATAALIGN_WORD;
-	handle->Init.Mode                = DMA_PFCTRL;
-	handle->Init.Priority            = table_priority[dma->cfg.channel_priority],
-	handle->Init.FIFOMode            = DMA_FIFOMODE_ENABLE;
-	handle->Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
-	handle->Init.MemBurst            = DMA_MBURST_INC4;
-	handle->Init.PeriphBurst         = DMA_PBURST_INC4;
+	handle->Init.Mode                = DMA_NORMAL;
+	handle->Init.Priority            = table_priority[dma->cfg.channel_priority];
+	//handle->Init.FIFOMode            = DMA_FIFOMODE_ENABLE;
+	//handle->Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+	//handle->Init.MemBurst            = DMA_MBURST_INC4;
+	//handle->Init.PeriphBurst         = DMA_PBURST_INC4;
 
 	return ret;
 }
@@ -298,6 +301,14 @@ static int stm32_sdmmc_access_init(struct disk_info *disk)
 		LOG_ERR("failed to init stm32_sdmmc (ErrorCode 0x%X)", priv->hsd.ErrorCode);
 		return -EIO;
 	}
+
+#if 0
+	err = HAL_SD_ConfigWideBusOperation(&priv->hsd, SDMMC_BUS_WIDE_4B);
+	if (err != HAL_OK) {
+		LOG_ERR("failed to setup stm32_sdmmc 4-bit (ErrorCode 0x%X)", priv->hsd.ErrorCode);
+	}
+#endif
+
 
 #ifdef CONFIG_SDMMC_STM32_HWFC
 	stm32_sdmmc_fc_enable(priv);
@@ -408,7 +419,7 @@ static int stm32_sdmmc_write_blocks(HandleTypeDef *hsd,
 #ifdef CONFIG_SDMMC_STM32_EMMC
 	return HAL_MMC_WriteBlocks_IT(hsd, data_buf, start_sector, num_sector);
 #else
-	return HAL_SD_WriteBlocks_IT(hsd, data_buf, start_sector, num_sector);
+	return HAL_SD_WriteBlocks_IT(hsd, data_buf, start_sector, num_sector); /* <-- */
 #endif
 
 #endif
@@ -424,6 +435,9 @@ static int stm32_sdmmc_access_write(struct disk_info *disk,
 
 	k_sem_take(&priv->thread_lock, K_FOREVER);
 
+	//PKV("%d", priv->status);
+	priv->status = 0;
+
 	err = stm32_sdmmc_write_blocks(&priv->hsd, (uint8_t *)data_buf, start_sector, num_sector);
 	if (err != HAL_OK) {
 		LOG_ERR("sd write block failed %d", err);
@@ -434,6 +448,12 @@ static int stm32_sdmmc_access_write(struct disk_info *disk,
 	k_sem_take(&priv->sync, K_FOREVER);
 
 	if (priv->status != DISK_STATUS_OK) {
+#if 0
+#define SDMMC_ERROR_TX_UNDERRUN              ((uint32_t)0x00000010U)   /*!< Transmit FIFO underrun                                        */
+#define HAL_SD_ERROR_TX_UNDERRUN              SDMMC_ERROR_TX_UNDERRUN                 /*!< Transmit FIFO underrun                                       */
+-- HAL_SD_WriteBlocks(), stm32cube/stm32l4xx/drivers/src/stm32l4xx_hal_sd.c:1083
+-- HAL_SD_IRQHandler(), stm32cube/stm32l4xx/drivers/src/stm32l4xx_hal_sd.c:1863
+#endif
 		LOG_ERR("sd write error %d", priv->status);
 		err = -EIO;
 		goto end;

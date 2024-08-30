@@ -23,8 +23,14 @@
 };
 */
 
+&dma2 {
+	status = "okay";
+};
+
 /delete-node/ &spi3;
 &sdmmc1 {
+	dmas = <&dma2 4 6 0x30000 0x00>, <&dma2 4 3 0x30000 0x00>;
+	dma-names = "tx", "rx";
 	bus-width = <1>;
 	clk-div = <0>;
 	pinctrl-0 = <
@@ -42,7 +48,7 @@
 &can1 {
 	pinctrl-0 = <&can1_rx_pb8 &can1_tx_pb9>;
 	pinctrl-names = "default";
-	bus-speed = <250000>;
+	bitrate = <250000>;
 	status = "okay";
 };
 

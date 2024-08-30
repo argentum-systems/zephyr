@@ -1,3 +1,4 @@
+#include <pk.h>
 /*
  * Copyright (c) 2016 Intel Corporation.
  * Copyright 2024 NXP
@@ -275,24 +276,24 @@ static int fatfs_truncate(struct fs_file_t *zfp, off_t length)
 	off_t cur_length = f_size((FIL *)zfp->filep);
 
 	/* f_lseek expands file if new position is larger than file size */
-	res = f_lseek(zfp->filep, length);
+	res = PKR(int, "%d", f_lseek(zfp->filep, length));
 	if (res != FR_OK) {
-		return translate_error(res);
+		return PKR(int, "%d", translate_error(res));
 	}
 
 	if (length < cur_length) {
-		res = f_truncate(zfp->filep);
+		res = PKR(int, "%d", f_truncate(zfp->filep));
 	} else {
 		/*
 		 * Get actual length after expansion. This could be
 		 * less if there was not enough space in the volume
 		 * to expand to the requested length
 		 */
-		length = f_tell((FIL *)zfp->filep);
+		length = PKR(int, "%d", f_tell((FIL *)zfp->filep));
 
-		res = f_lseek(zfp->filep, cur_length);
+		res = PKR(int, "%d", f_lseek(zfp->filep, cur_length));
 		if (res != FR_OK) {
-			return translate_error(res);
+			return PKR(int, "%d", translate_error(res));
 		}
 
 		/*
@@ -305,14 +306,14 @@ static int fatfs_truncate(struct fs_file_t *zfp, off_t length)
 		uint8_t c = 0U;
 
 		for (int i = cur_length; i < length; i++) {
-			res = f_write(zfp->filep, &c, 1, &bw);
+			res = PKR(int, "%d", f_write(zfp->filep, &c, 1, &bw));
 			if (res != FR_OK) {
 				break;
 			}
 		}
 	}
 
-	res = translate_error(res);
+	res = PKR(int, "%d", translate_error(res));
 #endif
 
 	return res;
